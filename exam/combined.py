@@ -899,6 +899,7 @@ def real_time_video_swirl():
     cv2.destroyAllWindows()
 
 
+##Exercise 9 functions
 
 def show_orthogonal_views(sitk_image, origin=None, title=None):
     """
