@@ -897,3 +897,148 @@ def real_time_video_swirl():
         counter += 1
     cap.release()
     cv2.destroyAllWindows()
+
+
+
+def show_orthogonal_views(sitk_image, origin=None, title=None):
+    """
+    Display axial, coronal, and sagittal orthogonal slices of a 3D volume.
+    If no origin is specified, it defaults to the center of the image.
+    """
+    data = sitk.GetArrayFromImage(sitk_image)
+    if origin is None:
+        origin = np.array(data.shape) // 2
+
+    data = img_as_ubyte(data / np.max(data))
+    fig, axes = plt.subplots(1, 3, figsize=(12, 4))
+    axes[0].imshow(data[origin[0], ::-1, ::-1], cmap='gray')
+    axes[0].set_title('Axial')
+    axes[1].imshow(data[::-1, origin[1], ::-1], cmap='gray')
+    axes[1].set_title('Coronal')
+    axes[2].imshow(data[::-1, ::-1, origin[2]], cmap='gray')
+    axes[2].set_title('Sagittal')
+    for ax in axes:
+        ax.axis('off')
+    if title:
+        fig.suptitle(title, fontsize=16)
+    plt.show()
+
+
+def overlay_orthogonal_views(image1, image2, origin=None, title=None):
+    """
+    Overlay orthogonal views of two 3D images in red (image1) and green (image2).
+    Assumes both images are the same shape.
+    """
+    vol1 = sitk.GetArrayFromImage(image1)
+    vol2 = sitk.GetArrayFromImage(image2)
+    if vol1.shape != vol2.shape:
+        raise ValueError("Image shapes must match for overlay.")
+    vol1[vol1 < 0] = 0
+    vol2[vol2 < 0] = 0
+    if origin is None:
+        origin = np.array(vol1.shape) // 2
+
+    rgb = np.zeros(vol1.shape + (3,), dtype=np.uint8)
+    rgb[..., 0] = img_as_ubyte(vol1 / np.max(vol1))
+    rgb[..., 1] = img_as_ubyte(vol2 / np.max(vol2))
+
+    fig, axes = plt.subplots(1, 3, figsize=(12, 4))
+    axes[0].imshow(rgb[origin[0], ::-1, ::-1, :])
+    axes[0].set_title('Axial')
+    axes[1].imshow(rgb[::-1, origin[1], ::-1, :])
+    axes[1].set_title('Coronal')
+    axes[2].imshow(rgb[::-1, ::-1, origin[2], :])
+    axes[2].set_title('Sagittal')
+    for ax in axes:
+        ax.axis('off')
+    if title:
+        fig.suptitle(title, fontsize=16)
+    plt.show()
+
+
+def rotation_matrix(pitch, roll=0, yaw=0):
+    """
+    Generate a 3D rotation matrix from pitch, roll, and yaw angles in degrees.
+    """
+    pitch, roll, yaw = np.deg2rad([pitch, roll, yaw])
+    Rx = np.array([[1, 0, 0], [0, np.cos(pitch), -np.sin(pitch)], [0, np.sin(pitch), np.cos(pitch)]])
+    Ry = np.array([[np.cos(roll), 0, np.sin(roll)], [0, 1, 0], [-np.sin(roll), 0, np.cos(roll)]])
+    Rz = np.array([[np.cos(yaw), -np.sin(yaw), 0], [np.sin(yaw), np.cos(yaw), 0], [0, 0, 1]])
+    return Rz @ Ry @ Rx
+
+
+def create_affine_matrix(pitch):
+    """
+    Return a 4x4 affine transformation matrix for a given pitch rotation (in degrees).
+    """
+    affine = np.eye(4)
+    affine[:3, :3] = rotation_matrix(pitch)
+    return affine
+
+
+def resample_image(volume, affine_matrix):
+    """
+    Apply a full 4x4 affine transformation to a SimpleITK image volume.
+    """
+    transform = sitk.AffineTransform(3)
+    transform.SetMatrix(affine_matrix[:3, :3].flatten())
+    transform.SetTranslation(affine_matrix[:3, 3])  # Respect input translation
+    # Do not override the center — already embedded in the matrix
+
+    resampler = sitk.ResampleImageFilter()
+    resampler.SetReferenceImage(volume)
+    resampler.SetInterpolator(sitk.sitkLinear)
+    resampler.SetTransform(transform)
+    return resampler.Execute(volume)
+
+
+def save_image(image, path):
+    """Save a SimpleITK image to disk."""
+    sitk.WriteImage(image, path)
+    print(f"Image saved to {path}")
+
+
+def homogeneous_matrix_from_transform(transform):
+    """
+    Convert a SimpleITK transform to a 4x4 homogeneous matrix.
+    """
+    matrix = np.eye(4)
+    matrix[:3, :3] = np.array(transform.GetMatrix()).reshape(3, 3)
+    matrix[:3, 3] = transform.GetTranslation()
+    return matrix
+
+
+def composite2affine(composite_transform, result_center=None):
+    """
+    Combine all of the composite transformation's contents to form an equivalent affine transformation.
+    """
+    flattened_composite_transform = sitk.CompositeTransform(composite_transform)
+    flattened_composite_transform.FlattenTransform()
+    tx_dim = flattened_composite_transform.GetDimension()
+    A = np.eye(tx_dim)
+    c = np.zeros(tx_dim) if result_center is None else result_center
+    t = np.zeros(tx_dim)
+    for i in range(flattened_composite_transform.GetNumberOfTransforms() - 1, -1, -1):
+        curr_tx = flattened_composite_transform.GetNthTransform(i).Downcast()
+        if curr_tx.GetTransformEnum() == sitk.sitkTranslation:
+            A_curr = np.eye(tx_dim)
+            t_curr = np.asarray(curr_tx.GetOffset())
+            c_curr = np.zeros(tx_dim)
+        else:
+            A_curr = np.asarray(curr_tx.GetMatrix()).reshape(tx_dim, tx_dim)
+            c_curr = np.asarray(curr_tx.GetCenter())
+            get_translation = getattr(curr_tx, "GetTranslation", None)
+            if get_translation is not None:
+                t_curr = np.asarray(get_translation())
+            else:
+                t_curr = np.zeros(tx_dim)
+        A = np.dot(A_curr, A)
+        t = np.dot(A_curr, t + c - c_curr) + t_curr + c_curr - c
+    return sitk.AffineTransform(A.flatten(), t, c)
+
+
+def combine_transforms_to_affine(composite_transform, center):
+    """
+    Convert a CompositeTransform to a single affine transformation with respect to a center.
+    """
+    return composite2affine(composite_transform, center)
