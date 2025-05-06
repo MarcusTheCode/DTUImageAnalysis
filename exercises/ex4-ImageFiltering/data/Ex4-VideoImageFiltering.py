@@ -17,15 +17,49 @@ def show_in_moved_window(win_name, img, x, y):
     cv2.imshow(win_name, img)
 
 
+def process_gray_image_prewitt(img):
+    """
+    Do a simple processing of an input gray scale image and return the processed image.
+    # https://scikit-image.org/docs/stable/user_guide/data_types.html#image-processing-pipeline
+    """
+    # Convert the image to float
+    img_float = img_as_float(img)
+    
+    # Apply Prewitt filter
+    edges = prewitt(img_float)
+    
+    # Apply Otsu's threshold to get binary image
+    thresh = threshold_otsu(edges)
+    binary = edges > thresh
+    
+    # Convert the binary image to ubyte
+    proc_img = img_as_ubyte(binary)
+    return img_as_ubyte(proc_img)
+
+
+# It slower than prewitt is because the median filter is applied to every single picture
 def process_gray_image(img):
     """
     Do a simple processing of an input gray scale image and return the processed image.
     # https://scikit-image.org/docs/stable/user_guide/data_types.html#image-processing-pipeline
     """
-    # Do something here:
-    proc_img = img.copy()
-    return img_as_ubyte(proc_img)
+    # Convert the image to float
+    img_float = img_as_float(img)
 
+    # Apply median filter with size 10
+    size = 10
+    
+    footprint = np.ones((size, size))
+    if img_float.ndim == 2:
+        median_filtered_img = median(img_float, footprint)
+    elif img_float.ndim == 3:
+        median_filtered_img = median(img_float, np.repeat(footprint[:, :, np.newaxis], img_float.shape[2], axis=2))
+    
+    
+    
+    # Convert the binary image to ubyte
+    proc_img = img_as_ubyte(median_filtered_img)
+    return img_as_ubyte(proc_img)
 
 def process_rgb_image(img):
     """
@@ -36,6 +70,8 @@ def process_rgb_image(img):
     r_comp = proc_img[:, :, 0]
     proc_img[:, :, 0] = 1 - r_comp
     return proc_img
+
+
 
 
 def capture_from_camera_and_show_images():

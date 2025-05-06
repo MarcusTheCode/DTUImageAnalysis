@@ -211,9 +211,9 @@ We start by finding the class ranges by manually inspecting the fitted Gaussians
 
 As in the last exercise, we can still se the background-fat threshold to be -200.
 
-**Exercise 9**: *Plot the fitted Gaussians of the training values and manually find the intersection between the curves.*
+**Exercise 10**: *Plot the fitted Gaussians of the training values and manually find the intersection between the curves.*
 
-**Exercise 10**: *Use the same technique as in exercise 7, 8 and 9 to visualize your classification results. Did it change compared to the minimum distance classifier?*
+**Exercise 11**: *Use the same technique as in exercise 7, 8 and 9 to visualize your classification results. Did it change compared to the minimum distance classifier?*
 
 An alternative way of finding the class ranges is to test which class has a the highest probability for a given value. The `norm.pdf` function can be used for that. For example:
 
@@ -226,7 +226,7 @@ else:
 
 here the `test_value` is a pixel value that you want to assign a class. One way to use this is to create a *look-up-table* where for each possible HU unit (for example 100, 101, 102 etc), the most probably class is noted. Doing this will give you the pixel value, where the two neighbouring classes meet.
 
-**Exercise 11**: *Use `norm.pdf` to find the optimal class ranges between fat, soft tissue and bone.*
+**Exercise 12**: *Use `norm.pdf` to find the optimal class ranges between fat, soft tissue and bone.*
 
 
 ## Object segmentation - The spleen finder
@@ -235,7 +235,7 @@ The goal of this part of the exercise, is to create a program that can automatic
 
 We start by using the **Training.dcm** image and the expert provided annotations.
 
-**Exercise 11**: *Inspect the values of the spleen as in exercise 3 and select a lower and upper threshold to create a spleen class range.*
+**Exercise 13**: *Inspect the values of the spleen as in exercise 3 and select a lower and upper threshold to create a spleen class range.*
 
 You can now use:
 
@@ -260,18 +260,18 @@ footprint = disk(?)
 opened = binary_opening(closed, footprint)
 ```
 
-**Exercise 12**: *Use the above morphological operations to seperate the spleen from other organs and close holes. Change the values where there are question marks to change the size of the used structuring elements.*
+**Exercise 14**: *Use the above morphological operations to seperate the spleen from other organs and close holes. Change the values where there are question marks to change the size of the used structuring elements.*
 
 
 Now we can use [BLOB](https://github.com/RasmusRPaulsen/DTUImageAnalysis/tree/main/exercises/ex5-BLOBAnalysis) analysis to do a feature based classification of the spleen.
 
-**Exercise 12**: *Use the methods from [BLOB](https://github.com/RasmusRPaulsen/DTUImageAnalysis/tree/main/exercises/ex5-BLOBAnalysis) analysis to compute BLOB features for every seperated BLOB in the image. You can for example start by:*
+**Exercise 15**: *Use the methods from [BLOB](https://github.com/RasmusRPaulsen/DTUImageAnalysis/tree/main/exercises/ex5-BLOBAnalysis) analysis to compute BLOB features for every seperated BLOB in the image. You can for example start by:*
  
 ```python
 label_img = measure.label(opened)
 ```
 
-**Exercise 13**: *Inspect the labeled image and validate the success of separating the spleen from the other objects. If it is connected (have the same color) to another organ, you should experiment with the kernel sizes in the morphological operations.*
+**Exercise 16**: *Inspect the labeled image and validate the success of separating the spleen from the other objects. If it is connected (have the same color) to another organ, you should experiment with the kernel sizes in the morphological operations.*
 
 To be able to keep only the spleen we need to find out which BLOB features, that is special for the spleen. By using `measure.regionprops` many different BLOB features can be computed, including area and perimeter.
 
@@ -296,11 +296,11 @@ show_comparison(img, i_area, 'Found spleen based on area')
 
 to create a filtered binary image, where only valid BLOBs are remaining. 
 
-**Exercise 14**: *Extend the method above to include several BLOB features. For example area and perimeter. Find the combination of features and feature value limits that will result in only the spleen remaining.*
+**Exercise 17**: *Extend the method above to include several BLOB features. For example area and perimeter. Find the combination of features and feature value limits that will result in only the spleen remaining.*
 
-**Exercise 15**: *Create a function `spleen_finder(img)` that takes as input a CT image and returns a binary image, where the pixels with value 1 represent the spleen and the pixels with value 0 everything else.*
+**Exercise 18**: *Create a function `spleen_finder(img)` that takes as input a CT image and returns a binary image, where the pixels with value 1 represent the spleen and the pixels with value 0 everything else.*
 
-**Exercise 16**: *Test your function on the images called **Validation1.dcm**,  **Validation2.dcm** and **Validation3.dcm**. Do you succeed in finding the spleen in all the validation images?*
+**Exercise 19**: *Test your function on the images called **Validation1.dcm**,  **Validation2.dcm** and **Validation3.dcm**. Do you succeed in finding the spleen in all the validation images?*
   
 
 ## DICE Score
@@ -328,13 +328,13 @@ dice_score = 1 - distance.dice(i_area.ravel(), gt_bin.ravel())
 print(f"DICE score {dice_score}")
 ```
 
-**Exercise 17**: *Compute the DICE score for your found spleen segmentations compared to the ground truth segmentations for the three validation images. How high DICE scores do you achieve?*
+**Exercise 20**: *Compute the DICE score for your found spleen segmentations compared to the ground truth segmentations for the three validation images. How high DICE scores do you achieve?*
 
 ## Testing on an independent test set
 
 *Overfitting* occurs when an algorithm has been developed on a training set and has become so specific to that set of data, that it works badly on other similar data. To avoid this, it is necessary to test an algorithm on an independent test set. We have provided three test images **Test1.dcm**, **Test2.dcm** and **Test3.dcm** with ground truth spleen annotations.
 
-**Exercise 18**: *Use your spleen finder program to find the spleen on the three test images and compute the DICE score. What is the result of your independent test?*
+**Exercise 21**: *Use your spleen finder program to find the spleen on the three test images and compute the DICE score. What is the result of your independent test?*
 
 
 ## References

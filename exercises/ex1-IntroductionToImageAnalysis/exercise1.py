@@ -355,3 +355,4 @@ def showSlice():
     io.imshow(im, vmin=-1500, vmax=2000, cmap='gray')
     io.show()
 showSlice()
+
