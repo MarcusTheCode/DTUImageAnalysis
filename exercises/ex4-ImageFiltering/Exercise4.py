@@ -295,4 +295,35 @@ def detectEdges():
     
     plt.show()
 
+def main():
+    print("Running Exercise 1:")
+    reflectAndConstant()
+    
+    print("\nRunning Exercise 2:")
+    showImageWithAndWithoutFilter()
+    
+    print("\nRunning Exercise 3:")
+    applyMedianFilter()
+    
+    print("\nRunning Exercise 4:")
+    applyFiltersOnSaltPepper()
+    
+    print("\nRunning Exercise 5:")
+    applyGaussianFilter()
+    
+    print("\nRunning Exercise 6:")
+    applyFiltersOnCarImage()
+    
+    print("\nRunning Exercise 7:")
+    applyPrewittFilters()
+    
+    print("\nRunning Exercise 8:")
+    applyPrewittFilter()
+    
+    print("\nRunning Exercise 9:")
+    detectEdges()
+
+if __name__ == "__main__":
+    main()
+
 #detectEdges()

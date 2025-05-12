@@ -1,254 +1,96 @@
 import numpy as np
+from scipy.ndimage import correlate
+from skimage import io, color
+from skimage.filters import prewitt
 import matplotlib.pyplot as plt
-from skimage import io
-from combined import apply_mean_filter, apply_median_filter, apply_gaussian_filter, apply_prewitt_filters, detect_edges
+from combined import (
+    apply_mean_filter, apply_median_filter, apply_gaussian_filter,
+    apply_prewitt_filters, detect_edges, show_comparison, convert_gray_to_rgb
+)
 
+# Constants
+data_dir = "data/filter/"
+input_img = np.arange(25).reshape(5, 5)
+weights = np.array([[0, 1, 0], [1, 2, 1], [0, 1, 0]])
 
-# Exercise 1: Correlation Center Value
 def exercise_1():
-    input_img = np.arange(25).reshape(5, 5)
-    weights = np.array([[0, 1, 0], [1, 2, 1], [0, 1, 0]])
-    from scipy.ndimage import correlate
     res_img = correlate(input_img, weights)
-    print("Value at (3,3):", res_img[3, 3])
+    print("Exercise 1 - Correlation Result at (3, 3):", res_img[3, 3])
 
-
-# Exercise 2: Border Modes Comparison
 def exercise_2():
-    from scipy.ndimage import correlate
-    input_img = np.arange(25).reshape(5, 5)
-    weights = np.array([[0, 1, 0], [1, 2, 1], [0, 1, 0]])
-    reflect_result = correlate(input_img, weights, mode="reflect")
-    constant_result = correlate(input_img, weights, mode="constant", cval=10)
-    print("Reflect mode:\n", reflect_result)
-    print("Constant mode:\n", constant_result)
+    reflect = correlate(input_img, weights, mode='reflect')
+    constant = correlate(input_img, weights, mode='constant', cval=10)
+    print("Exercise 2 - Reflect mode:\n", reflect)
+    print("Exercise 2 - Constant mode:\n", constant)
 
-
-# Exercise 3: Mean Filter
 def exercise_3():
-    im_org = io.imread("Gaussian.png", as_gray=True)
-    filtered = apply_mean_filter(im_org, size=5)
-    plt.subplot(1, 2, 1)
-    plt.imshow(im_org, cmap='gray')
-    plt.title("Original")
-    plt.subplot(1, 2, 2)
-    plt.imshow(filtered, cmap='gray')
-    plt.title("Mean Filtered (5x5)")
-    plt.show()
+    image = io.imread(data_dir + "Gaussian.png")
+    blurred = apply_mean_filter(image, size=10)
+    show_comparison(image, blurred, "Mean Filter (size 10)")
 
-
-# Exercise 4: Median Filter
 def exercise_4():
-    im_org = io.imread("Gaussian.png", as_gray=True)
-    med_img = apply_median_filter(im_org, size=5)
-    plt.subplot(1, 2, 1)
-    plt.imshow(im_org, cmap='gray')
-    plt.title("Original")
-    plt.subplot(1, 2, 2)
-    plt.imshow(med_img, cmap='gray')
-    plt.title("Median Filtered (5x5)")
-    plt.show()
+    image = io.imread(data_dir + "Gaussian.png")
+    sizes = [5, 10, 20]
+    for size in sizes:
+        filtered = apply_median_filter(image, size)
+        show_comparison(image, filtered, f"Median Filter (size {size})")
 
-
-# Exercise 5: Salt-and-Pepper Filtering
 def exercise_5():
-    img = io.imread("SaltPepper.png", as_gray=True)
-    mean_filtered = apply_mean_filter(img, size=5)
-    median_filtered = apply_median_filter(img, size=5)
-    plt.subplot(1, 3, 1)
-    plt.imshow(imgimport numpy as np
-import matplotlib.pyplot as plt
-from skimage import io
-from combined import apply_mean_filter, apply_median_filter, apply_gaussian_filter, apply_prewitt_filters, detect_edges
+    image = io.imread(data_dir + "SaltPepper.png")
+    sizes = [3, 5, 7]
+    for size in sizes:
+        mean_filtered = apply_mean_filter(image, size)
+        median_filtered = apply_median_filter(image, size)
+        show_comparison(image, mean_filtered, f"Mean Filter (size {size})")
+        show_comparison(image, median_filtered, f"Median Filter (size {size})")
 
-
-# Exercise 1: Correlation Center Value
-def exercise_1():
-    input_img = np.arange(25).reshape(5, 5)
-    weights = np.array([[0, 1, 0], [1, 2, 1], [0, 1, 0]])
-    from scipy.ndimage import correlate
-    res_img = correlate(input_img, weights)
-    print("Value at (3,3):", res_img[3, 3])
-
-
-# Exercise 2: Border Modes Comparison
-def exercise_2():
-    from scipy.ndimage import correlate
-    input_img = np.arange(25).reshape(5, 5)
-    weights = np.array([[0, 1, 0], [1, 2, 1], [0, 1, 0]])
-    reflect_result = correlate(input_img, weights, mode="reflect")
-    constant_result = correlate(input_img, weights, mode="constant", cval=10)
-    print("Reflect mode:\n", reflect_result)
-    print("Constant mode:\n", constant_result)
-
-
-# Exercise 3: Mean Filter
-def exercise_3():
-    im_org = io.imread("Gaussian.png", as_gray=True)
-    filtered = apply_mean_filter(im_org, size=5)
-    plt.subplot(1, 2, 1)
-    plt.imshow(im_org, cmap='gray')
-    plt.title("Original")
-    plt.subplot(1, 2, 2)
-    plt.imshow(filtered, cmap='gray')
-    plt.title("Mean Filtered (5x5)")
-    plt.show()
-
-
-# Exercise 4: Median Filter
-def exercise_4():
-    im_org = io.imread("Gaussian.png", as_gray=True)
-    med_img = apply_median_filter(im_org, size=5)
-    plt.subplot(1, 2, 1)
-    plt.imshow(im_org, cmap='gray')
-    plt.title("Original")
-    plt.subplot(1, 2, 2)
-    plt.imshow(med_img, cmap='gray')
-    plt.title("Median Filtered (5x5)")
-    plt.show()
-
-
-# Exercise 5: Salt-and-Pepper Filtering
-def exercise_5():
-    img = io.imread("SaltPepper.png", as_gray=True)
-    mean_filtered = apply_mean_filter(img, size=5)
-    median_filtered = apply_median_filter(img, size=5)
-    plt.subplot(1, 3, 1)
-    plt.imshow(img, cmap='gray')
-    plt.title("Noisy Image")
-    plt.subplot(1, 3, 2)
-    plt.imshow(mean_filtered, cmap='gray')
-    plt.title("Mean Filter")
-    plt.subplot(1, 3, 3)
-    plt.imshow(median_filtered, cmap='gray')
-    plt.title("Median Filter")
-    plt.show()
-
-
-# Exercise 6: Gaussian Filter
 def exercise_6():
-    im_org = io.imread("Gaussian.png", as_gray=True)
-    gauss_img = apply_gaussian_filter(im_org, sigma=1)
-    plt.imshow(gauss_img, cmap='gray')
-    plt.title("Gaussian σ=1")
-    plt.show()
+    image = io.imread(data_dir + "Gaussian.png")
+    sigmas = [1, 2, 3]
+    for sigma in sigmas:
+        blurred = apply_gaussian_filter(image, sigma)
+        show_comparison(image, blurred, f"Gaussian Filter (sigma {sigma})")
 
-
-# Exercise 7: Free Image Filtering
 def exercise_7():
-    img = io.imread("car.png", as_gray=True)
-    med_filtered = apply_median_filter(img, size=15)
-    gauss_filtered = apply_gaussian_filter(img, sigma=5)
-    plt.imshow(med_filtered, cmap='gray')
-    plt.title("Median Filter (15x15)")
-    plt.show()
-    plt.imshow(gauss_filtered, cmap='gray')
-    plt.title("Gaussian σ=5")
-    plt.show()
+    image = io.imread(data_dir + "car.png")
+    gray = color.rgb2gray(image)
+    show_comparison(image, gray, "Original Image")
+    for size in [15, 20, 25]:
+        filtered = apply_median_filter(gray, size)
+        show_comparison(gray, filtered, f"Median Filter (size {size})")
+    for sigma in [5, 10, 15]:
+        filtered = apply_gaussian_filter(gray, sigma)
+        show_comparison(gray, filtered, f"Gaussian Filter (sigma {sigma})")
 
-
-# Exercise 8: Prewitt H/V Filters
 def exercise_8():
-    img = io.imread("donald_1.png", as_gray=True)
-    ph, pv, _ = apply_prewitt_filters(img)
-    plt.subplot(1, 2, 1)
-    plt.imshow(ph, cmap='gray')
-    plt.title("Prewitt Horizontal")
-    plt.subplot(1, 2, 2)
-    plt.imshow(pv, cmap='gray')
-    plt.title("Prewitt Vertical")
-    plt.show()
+    image = io.imread(data_dir + "donald_1.png")
+    gray = color.rgb2gray(image)
+    h, v, _ = apply_prewitt_filters(gray)
+    show_comparison(gray, h, "Prewitt Horizontal")
+    show_comparison(gray, v, "Prewitt Vertical")
 
-
-# Exercise 9: Prewitt Magnitude
 def exercise_9():
-    img = io.imread("donald_1.png", as_gray=True)
-    _, _, pm = apply_prewitt_filters(img)
-    plt.imshow(pm, cmap='gray')
-    plt.title("Prewitt Magnitude")
-    plt.show()
+    image = io.imread(data_dir + "donald_1.png")
+    gray = color.rgb2gray(image)
+    combined = prewitt(gray)
+    show_comparison(gray, combined, "Prewitt Combined")
 
-
-# Exercise 10: Edge Detection in CT
 def exercise_10():
-    img = io.imread("ElbowCTSlice.png", as_gray=True)
-    binary, threshold = detect_edges(img, filter_type='gaussian', param=2)
-    plt.imshow(binary, cmap='gray')
-    plt.title(f"Detected Edges (Otsu threshold: {threshold:.4f})")
-    plt.show()
+    image = io.imread(data_dir + "ElbowCTSlice.png")
+    gray = color.rgb2gray(image)
+    for ftype in ['median', 'gaussian']:
+        edges, threshold = detect_edges(gray, filter_type=ftype, param=5 if ftype == 'median' else 2)
+        show_comparison(gray, edges, f"Edges using {ftype} filter")
 
-
-# Exercise 11 & 12: Webcam Video Filtering Example
-# These would be implemented in a script using OpenCV, similar to:
-# cap = cv2.VideoCapture(0)
-# while True: ...
-# For real-time application, this is left out for a script context.
-, cmap='gray')
-    plt.title("Noisy Image")
-    plt.subplot(1, 3, 2)
-    plt.imshow(mean_filtered, cmap='gray')
-    plt.title("Mean Filter")
-    plt.subplot(1, 3, 3)
-    plt.imshow(median_filtered, cmap='gray')
-    plt.title("Median Filter")
-    plt.show()
-
-
-# Exercise 6: Gaussian Filter
-def exercise_6():
-    im_org = io.imread("Gaussian.png", as_gray=True)
-    gauss_img = apply_gaussian_filter(im_org, sigma=1)
-    plt.imshow(gauss_img, cmap='gray')
-    plt.title("Gaussian σ=1")
-    plt.show()
-
-
-# Exercise 7: Free Image Filtering
-def exercise_7():
-    img = io.imread("car.png", as_gray=True)
-    med_filtered = apply_median_filter(img, size=15)
-    gauss_filtered = apply_gaussian_filter(img, sigma=5)
-    plt.imshow(med_filtered, cmap='gray')
-    plt.title("Median Filter (15x15)")
-    plt.show()
-    plt.imshow(gauss_filtered, cmap='gray')
-    plt.title("Gaussian σ=5")
-    plt.show()
-
-
-# Exercise 8: Prewitt H/V Filters
-def exercise_8():
-    img = io.imread("donald_1.png", as_gray=True)
-    ph, pv, _ = apply_prewitt_filters(img)
-    plt.subplot(1, 2, 1)
-    plt.imshow(ph, cmap='gray')
-    plt.title("Prewitt Horizontal")
-    plt.subplot(1, 2, 2)
-    plt.imshow(pv, cmap='gray')
-    plt.title("Prewitt Vertical")
-    plt.show()
-
-
-# Exercise 9: Prewitt Magnitude
-def exercise_9():
-    img = io.imread("donald_1.png", as_gray=True)
-    _, _, pm = apply_prewitt_filters(img)
-    plt.imshow(pm, cmap='gray')
-    plt.title("Prewitt Magnitude")
-    plt.show()
-
-
-# Exercise 10: Edge Detection in CT
-def exercise_10():
-    img = io.imread("ElbowCTSlice.png", as_gray=True)
-    binary, threshold = detect_edges(img, filter_type='gaussian', param=2)
-    plt.imshow(binary, cmap='gray')
-    plt.title(f"Detected Edges (Otsu threshold: {threshold:.4f})")
-    plt.show()
-
-
-# Exercise 11 & 12: Webcam Video Filtering Example
-# These would be implemented in a script using OpenCV, similar to:
-# cap = cv2.VideoCapture(0)
-# while True: ...
-# For real-time application, this is left out for a script context.
+# Entry point
+if __name__ == "__main__":
+    exercise_1()
+    exercise_2()
+    exercise_3()
+    exercise_4()
+    exercise_5()
+    exercise_6()
+    exercise_7()
+    exercise_8()
+    exercise_9()
+    exercise_10()

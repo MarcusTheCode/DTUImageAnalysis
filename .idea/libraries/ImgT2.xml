@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="ImgT2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/exam/data/3d/ImgT1.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

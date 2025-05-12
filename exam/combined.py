@@ -473,6 +473,65 @@ def apply_prewitt_filters(img):
     """
     return prewitt_h(img), prewitt_v(img), prewitt(img)
 
+def apply_prewitt_by_type(image, mode='combined'):
+    """
+    Apply Prewitt filter to detect image edges.
+
+    Parameters:
+        image (ndarray): Grayscale image.
+        mode (str): One of ['horizontal', 'vertical', 'combined'].
+
+    Returns:
+        ndarray: Edge map using selected Prewitt filter.
+    """
+    if mode == 'horizontal':
+        return prewitt_h(image)
+    elif mode == 'vertical':
+        return prewitt_v(image)
+    elif mode == 'combined':
+        return prewitt(image)
+    else:
+        raise ValueError("Invalid mode. Choose from 'horizontal', 'vertical', or 'combined'.")
+
+def otsu_threshold_edge_detection(image, filter_type='gaussian', filter_param=2):
+    """
+    Detect edges using a filter followed by Prewitt and Otsu thresholding.
+
+    Parameters:
+        image (ndarray): Grayscale input image.
+        filter_type (str): 'gaussian' or 'median'.
+        filter_param (int or float): Size (for median) or sigma (for gaussian).
+
+    Returns:
+        tuple: (gradient_image, binary_image) after edge detection.
+    """
+    if filter_type == 'gaussian':
+        filtered = gaussian(image, sigma=filter_param)
+    elif filter_type == 'median':
+        filtered = apply_median_filter(image, size=filter_param)
+    else:
+        raise ValueError("filter_type must be 'gaussian' or 'median'.")
+
+    edge_img = prewitt(filtered)
+    threshold = threshold_otsu(edge_img)
+    binary_img = edge_img > threshold
+    return edge_img, binary_img
+
+def load_grayscale_image(path):
+    """
+    Load an image and convert to grayscale.
+
+    Parameters:
+        path (str): Path to the image file.
+
+    Returns:
+        ndarray: Grayscale image.
+    """
+    img = io.imread(path)
+    if img.ndim == 3:
+        img = color.rgb2gray(img)
+    return img
+
 # Edge Detection with Preprocessing and Otsu Thresholding
 def detect_edges(img, filter_type='median', param=5):
     """
@@ -777,10 +836,10 @@ def show_comparison(original, transformed, transformed_name):
     Display original and transformed images side-by-side.
     """
     fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 4))
-    ax1.imshow(original)
+    ax1.imshow(original, cmap='gray')
     ax1.set_title('Original')
     ax1.axis('off')
-    ax2.imshow(transformed)
+    ax2.imshow(transformed, cmap='gray')
     ax2.set_title(transformed_name)
     ax2.axis('off')
     plt.show()
