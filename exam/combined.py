@@ -291,10 +291,12 @@ from skimage.util import img_as_ubyte
 from skimage.morphology import disk, dilation, erosion, remove_small_objects, binary_closing, binary_opening
 from skimage.transform import rotate, EuclideanTransform, SimilarityTransform, warp, swirl, matrix_transform
 import cv2
-from skimage.measure import label, regionprops
+from skimage.draw import rectangle_perimeter
+import pydicom as dicom
+from skimage.measure import label, regionprops, profile_line
 from skimage.filters import threshold_otsu
 from scipy.ndimage import correlate
-from skimage.color import label2rgb
+from skimage.color import label2rgb, rgb2gray, gray2rgb
 from scipy.stats import norm
 from skimage.morphology import disk, erosion, dilation, opening, closing
 from skimage.filters import median, gaussian, prewitt, prewitt_h, prewitt_v
@@ -897,3 +899,91 @@ def real_time_video_swirl():
         counter += 1
     cap.release()
     cv2.destroyAllWindows()
+
+# Show image with optional parameters
+def show_image(img, title="Image", cmap='gray', vmin=None, vmax=None):
+    plt.imshow(img, cmap=cmap, vmin=vmin, vmax=vmax)
+    plt.title(title)
+    plt.axis('off')
+    plt.show()
+
+# Show histogram
+def show_histogram(image, bins=256):
+    plt.hist(image.ravel(), bins=bins)
+    plt.title("Histogram")
+    plt.show()
+
+# Analyze a pixel at given coordinates
+def analyze_pixel(image, x, y):
+    print(f"Pixel value at ({x}, {y}): {image[x, y]}")
+
+# Apply colormap to grayscale image
+def apply_colormap(image, cmap, title="Colored Image"):
+    plt.imshow(image, cmap=cmap)
+    plt.title(title)
+    plt.axis('off')
+    plt.show()
+
+# Scale image display using min and max
+def scale_image_display(image):
+    plt.imshow(image, cmap='gray', vmin=np.min(image), vmax=np.max(image))
+    plt.title("Auto-scaled grayscale")
+    plt.axis('off')
+    plt.show()
+
+# Compute histogram data
+def compute_histogram_data(image, bins=256):
+    counts, edges = np.histogram(image.ravel(), bins=bins)
+    return counts, edges
+
+# Create binary mask where image > threshold
+def mask_above_threshold(image, threshold):
+    return image > threshold
+
+# Set pixels in an image to a value where mask is True
+def set_pixels_with_mask(image, mask, value):
+    image[mask] = value
+    return image
+
+# Extract and show color channels
+def extract_color_channels(image):
+    channels = ['Red', 'Green', 'Blue']
+    for i in range(3):
+        plt.imshow(image[:, :, i], cmap='gray')
+        plt.title(channels[i])
+        plt.axis('off')
+        plt.show()
+
+# Mask region in image as black
+def mark_region_black(image, region):
+    x1, x2, y1, y2 = region
+    image[x1:x2, y1:y2] = 0
+    return image
+
+# Draw colored rectangle around region
+def draw_colored_rectangle(image, region, color):
+    x1, x2, y1, y2 = region
+    rr, cc = rectangle_perimeter(start=(x1, y1), end=(x2-1, y2-1), shape=image.shape)
+    image[rr, cc] = color
+    return image
+
+# Convert grayscale to RGB
+def convert_gray_to_rgb(gray_image):
+    return gray2rgb(gray_image)
+
+# Highlight a mask in a specific color
+def highlight_mask(image_rgb, mask, color):
+    image_rgb[mask] = color
+    return image_rgb
+
+# Plot profile intensity
+def profile_intensity(image, start, end):
+    p = profile_line(image, start, end)
+    plt.plot(p)
+    plt.title("Intensity profile")
+    plt.show()
+
+# Read and return DICOM image and metadata
+def read_dicom_image(path):
+    ds = dicom.dcmread(path)
+    return ds.pixel_array, ds
