@@ -1192,3 +1192,13 @@ def combine_transforms_to_affine(composite_transform, center):
     Convert a CompositeTransform to a single affine transformation with respect to a center.
     """
     return composite2affine(composite_transform, center)
+
+
+# Exercise 4b functions
+def load_image_gray(path):
+    image = io.imread(path)
+    return color.rgb2gray(image)
+
+def binarize_image_gray(im_gray):
+    threshold = threshold_otsu(im_gray)
+    return im_gray > threshold
