@@ -1202,3 +1202,27 @@ def load_image_gray(path):
 def binarize_image_gray(im_gray):
     threshold = threshold_otsu(im_gray)
     return im_gray > threshold
+
+# Exercise 3 functions
+
+def show_min_max(image, label="Image"):
+    print(f"{label} min: {np.min(image)}, max: {np.max(image)}")
+
+def show_image_with_histogram(image, title="Image", cmap="gray", bins=256):
+    """
+    Displays an image and its histogram side by side.
+
+    Parameters:
+        image (ndarray): Input image.
+        title (str): Title for the image display.
+        cmap (str): Colormap used for image display.
+        bins (int): Number of bins for the histogram.
+    """
+    fig, ax = plt.subplots(1, 2, figsize=(10, 5))
+    ax[0].imshow(image, cmap=cmap)
+    ax[0].set_title(title)
+    ax[0].axis("off")
+    ax[1].hist(image.ravel(), bins=bins, range=[np.min(image), np.max(image)])
+    ax[1].set_title("Histogram")
+    plt.tight_layout()
+    plt.show()

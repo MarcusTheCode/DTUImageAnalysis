@@ -37,7 +37,7 @@ def displayImageAndHistogram():
     ax[1].hist(im_org.ravel(), bins=256, range=[0, 256])
     ax[1].set_title("Histogram")
     plt.show()
-#displayImageAndHistogram()
+displayImageAndHistogram()
 
 # Exercise 3
 def showMaxAndMinOfFloatImage():
@@ -46,7 +46,7 @@ def showMaxAndMinOfFloatImage():
     print(f"Maximum value rgb: {np.max(im_org)}")
     print(f"Minimum value float: {np.min(im_float)}")
     print(f"Maximum value float: {np.max(im_float)}")
-#showMaxAndMinOfFloatImage()
+showMaxAndMinOfFloatImage()
 
 # Exercise 4
 # The Min and Max is as expected as they remain 57 and 235
@@ -55,7 +55,7 @@ def floatToUbyte():
     im_ubyte = img_as_ubyte(im_float)
     print(f"Minimum value: {np.min(im_ubyte)}")
     print(f"Maximum value: {np.max(im_ubyte)}")
-#floatToUbyte()
+floatToUbyte()
 
 #
 def histogram_stretch(img_in):
@@ -83,7 +83,7 @@ def showHistogramStretch():
     ax[1].hist(im_stretched.ravel(), bins=256, range=[0, 256])
     ax[1].set_title("Histogram")
     plt.show()
-#showHistogramStretch()
+showHistogramStretch()
 
 # Exercise 6
 def showOriginalAndStretched():
@@ -105,7 +105,7 @@ def showOriginalAndStretched():
     ax[1, 1].set_title("Stretched Histogram")
     
     plt.show()
-#showOriginalAndStretched()
+showOriginalAndStretched()
 
 # Exercise 7
 def gamma_map(img, gamma):
@@ -141,8 +141,8 @@ def showOriginalAndGammaCorrected(gamma):
     plt.show()
 
 # Example usage:
-# showOriginalAndGammaCorrected(0.5)
-# showOriginalAndGammaCorrected(2.0)
+showOriginalAndGammaCorrected(0.5)
+showOriginalAndGammaCorrected(2.0)
 
 # Exercise 9
 def threshold_image(img_in, thres):
@@ -178,7 +178,7 @@ def showOriginalAndThresholded(thres):
     plt.show()
 
 # Example usage:
-# showOriginalAndThresholded(128)
+showOriginalAndThresholded(128)
 
 # Exercise 10
 def test_thresholds():
@@ -187,7 +187,7 @@ def test_thresholds():
         showOriginalAndThresholded(thres)
 
 # Example usage:
-#test_thresholds()
+test_thresholds()
 
 
 # Exercise 11
@@ -223,7 +223,7 @@ def showOriginalAndOtsuThresholded():
     plt.show()
 
 # Example usage:
-#showOriginalAndOtsuThresholded()
+showOriginalAndOtsuThresholded()
 
 #Exercise 12
 def showOriginalAndOtsuThresholdedNewImage():
@@ -248,7 +248,7 @@ def showOriginalAndOtsuThresholdedNewImage():
     plt.show()
 
 # Example usage:
-#showOriginalAndOtsuThresholdedNewImage()
+showOriginalAndOtsuThresholdedNewImage()
 
 # Exercise 13
 def detect_dtu_signs(img):
@@ -284,7 +284,7 @@ def showOriginalAndDetectedSigns():
     plt.show()
 
 # Example usage:
-#showOriginalAndDetectedSigns()
+showOriginalAndDetectedSigns()
 
 
 # Exercise 14
@@ -330,8 +330,8 @@ def showOriginalAndDetectedSigns(color):
 
 
 # Example usage:
-# showOriginalAndDetectedSigns('blue')
-# showOriginalAndDetectedSigns('red')
+showOriginalAndDetectedSigns('blue')
+showOriginalAndDetectedSigns('red')
 
 # Exercise 15
 def showHSVChannels():
@@ -356,7 +356,7 @@ def showHSVChannels():
     plt.show()
 
 # Example usage:
-#showHSVChannels()
+showHSVChannels()
 
 def detect_dtu_signs_hsv(img, sign_color):
     """
@@ -400,8 +400,8 @@ def showOriginalAndDetectedSignsHSV(sign_color):
 
 # Example usage:
 
-# showOriginalAndDetectedSignsHSV('blue')
-# showOriginalAndDetectedSignsHSV('red')
+showOriginalAndDetectedSignsHSV('blue')
+showOriginalAndDetectedSignsHSV('red')
 
 
 
