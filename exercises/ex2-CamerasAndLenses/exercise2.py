@@ -25,8 +25,8 @@ def camera_b_distance(f, g):
     """
     return -1*((f*g)/(f-g))
 print(camera_b_distance(5, 3000))
-#print(camera_b_distance(15, 1000))
-#print(camera_b_distance(15, 5000))
-#print(camera_b_distance(15, 15000))
+print(camera_b_distance(15, 1000))
+print(camera_b_distance(15, 5000))
+print(camera_b_distance(15, 15000))
 
 

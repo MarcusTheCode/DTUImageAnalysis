@@ -281,7 +281,7 @@ ImgT1_A = sitk.ReadImage(dir_in + 'ImgT1_A.nii')
 def exercise4():
     imshow_orthogonal_view(ImgT1_A, title='T1_A.nii')
     overlay_slices(vol_sitk, ImgT1_A, title = 'ImgT1 (red) vs. ImgT1_A (green)')
-exercise4()
+#exercise4()
 
 def homogeneous_matrix_from_transform(transform):
     """Convert a SimpleITK transform to a homogeneous matrix."""
@@ -716,4 +716,6 @@ def exercise12():
                 print(f"    Registration failed for step length {step_length}: {e}")
 
 # Run exercise12
-# exercise12()
+#exercise12()
+
+exercise9()
