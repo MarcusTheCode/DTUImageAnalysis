@@ -28,15 +28,15 @@ img = ct.pixel_array
 print(img.shape)
 print(img.dtype)
 vmin, vmax = np.min(img), np.max(img)
-#io.imshow(img, vmin=vmin, vmax=vmax, cmap='gray')
-#io.show()
+io.imshow(img, vmin=vmin, vmax=vmax, cmap='gray')
+io.show()
 
 #Exercise 1
 spleen_roi = io.imread(in_dir + 'SpleenROI.png')
 # convert to boolean image
 spleen_mask = spleen_roi > 0
 spleen_values = img[spleen_mask]
-#show_comparison(img, spleen_mask, 'Spleen ROI')
+show_comparison(img, spleen_mask, 'Spleen ROI')
 
 
 #Exercise 2
@@ -74,7 +74,7 @@ def plotHounsfildUnitSpleen():
     plt.ylabel('Frequency')
     plt.title('Spleen values in CT scan')
     plt.show()
-#plotHounsfildUnitSpleen()
+plotHounsfildUnitSpleen()
 
 
 #Exercise 4
@@ -101,7 +101,7 @@ def plotHounsFieldBoneSpleen():
     plt.title("Fitted Gaussians")
     plt.legend()
     plt.show()
-#plotHounsFieldBoneSpleen()
+plotHounsFieldBoneSpleen()
 
 
 #Spleen liver and kidneys are hard to distinguish
@@ -146,7 +146,7 @@ def plotHounsFieldMultipleOrgans():
     plt.legend()
     plt.show()
 
-#plotHounsFieldMultipleOrgans()
+plotHounsFieldMultipleOrgans()
 
 # Exercise 6
 # Define the classes for classification
@@ -237,7 +237,7 @@ def colorVisuliazation():
 
     plt.tight_layout()
     plt.show()
-#colorVisuliazation()
+colorVisuliazation()
 
 #Exercise 10
 def plot_gaussian_intersections():
@@ -264,7 +264,7 @@ def plot_gaussian_intersections():
     plt.show()
 
 # Call the function to plot
-#plot_gaussian_intersections()
+plot_gaussian_intersections()
 
 # Exercise 11
 # Yes it became useless
@@ -304,7 +304,7 @@ def visualize_classification_results():
     plt.show()
 
 # Call the function to visualize the classification results
-#visualize_classification_results()
+visualize_classification_results()
 
 # Exercise 12
 def find_optimal_class_ranges():
@@ -344,7 +344,7 @@ def find_optimal_class_ranges():
         print(f"Boundary between {prev_class} and {current_class} at HU = {hu}")
 
 # Call the function to find and print the optimal class ranges
-#find_optimal_class_ranges()
+find_optimal_class_ranges()
 
 
 # Bottom 27 top 73
@@ -383,7 +383,7 @@ def automaticSpleenSegmentationV1():
     i_area = label_img_filter > 0
     show_comparison(img, i_area, 'Found spleen based on area')
 
-#automaticSpleenSegmentationV1()
+automaticSpleenSegmentationV1()
 
 def spleen_finder(img):
     # Define thresholds for spleen Hounsfield units
@@ -469,4 +469,4 @@ def plotHounsfildUnitSpleen():
     plt.ylabel('Frequency')
     plt.title('Spleen values in CT scan')
     plt.show()
-#plotHounsfildUnitSpleen()
+plotHounsfildUnitSpleen()

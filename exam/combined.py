@@ -769,7 +769,7 @@ def filter_regions(label_img, min_area, max_area, circ_bounds=(0.5, 1.2)):
     return label_img_filtered > 0
 
 # Full spleen segmentation pipeline
-def spleen_finder(img, t_1=27, t_2=73, min_area=4000, max_area=4700):
+def spleen_finder(img, t_1=27, t_2=73, min_area=3900, max_area=4700):
     spleen_est = spleen_segment(img, t_1, t_2)
     label_img = measure.label(spleen_est)
     spleen_bin = filter_regions(label_img, min_area, max_area)
