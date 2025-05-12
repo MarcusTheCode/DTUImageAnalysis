@@ -286,7 +286,7 @@ import math
 import matplotlib.pyplot as plt
 import SimpleITK as sitk
 import cv2
-from skimage import io, color, segmentation, measure
+from skimage import io, color, segmentation, measure, morphology
 from skimage.util import img_as_ubyte
 from skimage.morphology import disk, dilation, erosion, remove_small_objects, binary_closing, binary_opening
 from skimage.transform import rotate, EuclideanTransform, SimilarityTransform, warp, swirl, matrix_transform
@@ -670,6 +670,104 @@ def compute_circularities(region_props):
         for prop in region_props
     ])
 
+def solution_circularities(area, perimeter):
+    '''
+    You may get values larger than 1 because
+    we are in a "discrete" (pixels) domain. Check:
+
+    CIRCULARITY OF OBJECTS IN IMAGES, Botterma, M.J. (2000)
+    https://core.ac.uk/download/pdf/14946814.pdf
+    '''
+    f_circ = (4*np.pi*area)/(perimeter**2)
+    return f_circ
+
+def cell_counting(img_gray, min_area = 10, max_area = 150, min_circ = 0.7):
+
+    # Binarization
+    thres = threshold_otsu(img_gray)
+    img_bin = img_gray > thres
+    img_c_b = segmentation.clear_border(img_bin)
+
+    # Label image
+    label_img = measure.label(img_c_b)
+
+    # Extract properties
+    region_props = measure.regionprops(label_img)
+
+    # Number of blobs
+    n_nuclei = len(region_props)
+    
+    # Filter the label image
+    label_img_filter = label_img.copy()
+    for region in region_props:
+        circ = solution_circularities(region.area, region.perimeter)
+        # Find the areas that do not fit our criteria
+        if region.area > max_area or region.area < min_area or circ < min_circ:
+            # set the pixels in the invalid areas to background
+            n_nuclei = n_nuclei - 1
+            for cords in region.coords:
+                label_img_filter[cords[0], cords[1]] = 0
+
+    # Create binary image from the filtered label image
+    i_area = label_img_filter > 0
+
+    return i_area, n_nuclei
+
+def im2patch(im, patch_size=[256,256]):
+    """
+    Fancy function to rearrange an image into patches (Not important).
+    
+    Arguments:
+        image: a 2D image, shape (r,c).
+        patch size: size of extracted paches.
+    Returns:
+        patches: a 3D array which in every 3rd dimension has a patch associated 
+    """
+    
+    r,c = im.shape
+    s0, s1 = im.strides    
+    nrows =r-patch_size[0]+1
+    ncols = c-patch_size[1]+1
+    shp = patch_size[0],patch_size[1],nrows,ncols
+    strd = s0,s1,s0,s1
+
+    out_view = np.lib.stride_tricks.as_strided(im, shape=shp, strides=strd)
+    out_view = out_view[:,:,::patch_size[0],::patch_size[1]].reshape(patch_size[0],patch_size[1],-1)
+    return out_view
+
+def cell_counting_ex17(img_gray, opening_sz = 5, min_area = 10, max_area = 150, min_circ = 0.7):
+
+    # Binarization
+    thres = threshold_otsu(img_gray)
+    img_bin = img_gray > thres
+    img_c_b = segmentation.clear_border(img_bin)
+    img_open = morphology.binary_opening(img_c_b, morphology.disk(opening_sz))
+
+    # Label image
+    label_img = measure.label(img_open)
+
+    # Extract properties
+    region_props = measure.regionprops(label_img)
+    
+    # Number of blobs
+    n_nuclei = len(region_props)
+    
+    # Filter the label image
+    label_img_filter = label_img.copy()
+    for region in region_props:
+        circ = solution_circularities(region.area, region.perimeter)
+        # Find the areas that do not fit our criteria
+        if region.area > max_area or region.area < min_area or circ < min_circ:
+            n_nuclei = n_nuclei - 1
+            # set the pixels in the invalid areas to background
+            for cords in region.coords:
+                label_img_filter[cords[0], cords[1]] = 0
+
+    # Create binary image from the filtered label image
+    i_area = label_img_filter > 0
+
+    return i_area, n_nuclei
+
 def filter_by_circularity(region_props, min_circ, max_circ, min_area, max_area):
     count = 0
     for prop in region_props:
@@ -1047,6 +1145,98 @@ def read_dicom_image(path):
     ds = dicom.dcmread(path)
     return ds.pixel_array, ds
 
+#Exercise 5 functions
+def convert_to_grayscale(image):
+    """Convert an RGB image to grayscale."""
+    return color.rgb2gray(image)
+
+
+def threshold_image(gray_image, flag):
+    """Apply Otsu's threshold to convert grayscale to binary image."""
+    thresh = threshold_otsu(gray_image)
+    if flag==0:
+        return gray_image < thresh
+    else: 
+        return gray_image > thresh
+
+
+def remove_border_blobs(binary_image):
+    """Remove blobs that are connected to the image border."""
+    return segmentation.clear_border(binary_image)
+
+
+def apply_morphology(binary_image, operation="closing", radius=3):
+    """Apply morphological operation: 'closing', 'opening', 'dilation', or 'erosion'."""
+    selem = morphology.disk(radius)
+    ops = {
+        "closing": morphology.closing,
+        "opening": morphology.opening,
+        "dilation": morphology.dilation,
+        "erosion": morphology.erosion
+    }
+    return ops[operation](binary_image, selem)
+
+
+def label_image(binary_image):
+    """Label connected components in a binary image."""
+    return measure.label(binary_image)
+
+
+def visualize_labels(label_img):
+    """Visualize labeled components over the original image."""
+    return label2rgb(label_img)
+
+
+def extract_blob_features(label_img):
+    """Extract BLOB features such as area, perimeter, and centroid from labeled image."""
+    return measure.regionprops(label_img)
+
+def find_labels(img_open):
+    label_img = measure.label(img_open)
+    n_labels = label_img.max()
+    print(f"Number of labels: {n_labels}")
+    return label_img
+
+def filter_blobs_by_feature(props, min_area=None, max_area=None, min_perimeter=None):
+    """Filter BLOBs based on area and perimeter constraints."""
+    filtered = []
+    for region in props:
+        if (min_area and region.area < min_area) or (max_area and region.area > max_area):
+            continue
+        if min_perimeter and region.perimeter < min_perimeter:
+            continue
+        filtered.append(region)
+    return filtered
+
+
+def compute_circularity(region):
+    """Compute circularity of a region."""
+    if region.perimeter == 0:
+        return 0
+    return 4 * np.pi * region.area / (region.perimeter ** 2)
+
+
+def plot_feature_space(features, x_key, y_key):
+    """Plot a 2D feature space (e.g., area vs perimeter or area vs circularity)."""
+    x = [getattr(f, x_key) for f in features]
+    y = [getattr(f, y_key) for f in features] if y_key != "circularity" else [compute_circularity(f) for f in features]
+    plt.scatter(x, y)
+    plt.xlabel(x_key)
+    plt.ylabel(y_key)
+    plt.title(f'{x_key} vs {y_key}')
+    plt.show()
+
+
+def show_comparison(original, modified, modified_name):
+    """Display two images side by side for visual comparison."""
+    fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 4), sharex=True, sharey=True)
+    ax1.imshow(original, cmap='gray')
+    ax1.set_title('Original')
+    ax1.axis('off')
+    ax2.imshow(modified, cmap='gray')
+    ax2.set_title(modified_name)
+    ax2.axis('off')
+    plt.show()
 
 ##Exercise 9 functions
 
