@@ -341,6 +341,52 @@ def quick_overlay_slices(sitk_img_red, sitk_img_green, origin=None, title=None):
         fig.suptitle(title)
     plt.show()
 
+def quick_calculate_rigid_geometric_tranformation(fixedImage, movingImage):
+    # Set the registration - Fig. 1 from the Theory Note
+    R = sitk.ImageRegistrationMethod()
+
+    # Set a one-level the pyramid scheule. [Pyramid step]
+    R.SetShrinkFactorsPerLevel(shrinkFactors=[2])
+    R.SetSmoothingSigmasPerLevel(smoothingSigmas=[2])
+    R.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
+
+    # Set the interpolator [Interpolation step]
+    R.SetInterpolator(sitk.sitkLinear)
+
+    # Set the similarity metric [Metric step]
+    R.SetMetricAsMeanSquares()
+
+    # Set the sampling strategy [Sampling step]
+    R.SetMetricSamplingStrategy(R.RANDOM)
+    R.SetMetricSamplingPercentage(0.10)
+
+    # Set the optimizer [Optimization step]
+    R.SetOptimizerAsPowell(stepLength=0.1, numberOfIterations=25)
+
+    # Initialize the transformation type to rigid
+    initTransform = sitk.CenteredTransformInitializer(fixedImage, movingImage, sitk.Euler3DTransform(),
+                                                        sitk.CenteredTransformInitializerFilter.GEOMETRY)
+    R.SetInitialTransform(initTransform, inPlace=False)
+
+    # Some extra functions to keep track to the optimization process
+    # R.AddCommand(sitk.sitkIterationEvent, lambda: command_iteration(R)) # Print the iteration number and metric value
+
+    # Estimate the registration transformation [metric, optimizer, transform]
+    tform_reg = R.Execute(fixedImage, movingImage)
+
+    # Apply the estimated transformation to the moving image
+    ImgT1_B = sitk.Resample(movingImage, tform_reg)
+    quick_show_orthogonal(ImgT1_B, title='Moving image')
+    quick_overlay_slices(fixedImage, ImgT1_B, title='Overlay')
+
+    params = tform_reg.GetParameters()
+    angles = params[:3]
+    trans = params[3:6]
+    print('Estimated translation: ')
+    print(np.round(trans, 3))
+    print('Estimated rotation (deg): ')
+    print(np.round(np.rad2deg(angles), 3))
+
 # Function 3: Read a DICOM and ROI PNG
 def load_dicom_and_roi(dicom_path, roi_path):
     img = sitk.ReadImage(dicom_path)
