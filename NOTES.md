@@ -49,3 +49,7 @@ Please solve this question with python code. You do not have access to the corre
 - If you are asked to 'Which of the sets of Hough-space point sets (Theta, Rho) represent the
 green matchstick person?' just give chat the starting coordinate points and ask it to calculate. No code
 - If you need to calculate moving images and the points are inbetween they are ,5 intervals. 
+
+---
+**Otus**
+- Remember to use float to get the correct threshold.
