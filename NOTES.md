@@ -15,6 +15,7 @@ Please solve this question with python code. You do not have access to the corre
 
 **LDA Analysis**
 - Be aware of the colors and that they are correct!
+- If asked to calculate hyperplane remember class value - threashold = result
 
 ---
 
@@ -53,3 +54,12 @@ green matchstick person?' just give chat the starting coordinate points and ask 
 ---
 **Otus**
 - Remember to use float to get the correct threshold.
+
+---
+**Two Hough space sinograms crossing**
+- Print it in python and see what 2 lines are crossing
+
+---
+**accumulator image**
+From the top select the sorthest path
+![alt text](image.png)

@@ -86,6 +86,8 @@ def run_exercise5():
     print("Applied Affine Matrix:\n", matrix_applied)
     print("Estimated Affine Matrix:\n", matrix_estimated)
 
+run_exercise5()
+
 def run_exercise6():
     img = sitk.ReadImage(dir_in + 'ImgT1_B.nii')
     show_orthogonal_views(img, title='Ortho view of ImgT1_B.nii')
@@ -300,4 +302,4 @@ def run_exercise12():
                 print(f"    Registration failed (σ={sigma}, step={step_length}): {e}")
 
 
-run_exercise9()
+#run_exercise9()
